@@ -6,7 +6,6 @@ class Schedule:
 
 
 
-
 def main():
     print('Hello, worker!')
 
