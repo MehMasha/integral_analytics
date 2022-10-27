@@ -5,10 +5,11 @@ from xmlrpc.client import Boolean
 class Schedule:
     def __init__(self, start_time: str, end_time: str) -> None:
         '''
-        :param start_time: whep worker starts job
-        :param end_time: whep worker ends job
+        :param start_time: when worker starts job
+        :param end_time: when worker ends job
 
-        get info about work day, generate booked slots based on start and end of working day
+        get info about work day,
+        generate booked slots based on start and end of working day
         '''
         self.start_time = self._transform_time(start_time)
         self.end_time = self._transform_time(end_time)
@@ -95,7 +96,7 @@ class Worker:
         self.name = name
         self.position = position
         self._db_register_worker()
-    
+
     def _db_register_worker(self) -> None:
         '''
         db function
@@ -123,12 +124,12 @@ class Worker:
         :param end_interval: end of new slot
 
         trying to book a slot
-        '''        
+        '''
         booking = self.schedule._book_slot(start_interval, end_interval)
         if booking:
             return 'Slot is booked'
         return 'Slot is not empty'
-        
+
 
 def find_mutual_slots(workers: list) -> list:
     '''
@@ -138,50 +139,47 @@ def find_mutual_slots(workers: list) -> list:
         return workers[0].get_empty_slots()
     mutual_slots = []
     for worker in workers:
-        slots = [slot for slot in worker.schedule.booked_slots if slot[0] != datetime.time(hour=0, minute=0) or slot[1] != datetime.time(hour=0, minute=0) ]
+        slots = [slot for slot in worker.schedule.booked_slots if slot[0] != datetime.time(hour=0, minute=0) or slot[1] != datetime.time(hour=0, minute=0)]
         mutual_slots += slots
-    
-    mutual_slots.sort()
 
+    mutual_slots.sort()
 
     final_slots = [mutual_slots[0]]
     for slot in mutual_slots[1:]:
-        if final_slots[-1][1] != datetime.time(hour=0, minute=0): 
+        if final_slots[-1][1] != datetime.time(hour=0, minute=0):
             if slot[0] <= final_slots[-1][1] and slot[1] > final_slots[-1][1]:
                 final_slots[-1][1] = slot[1]
             elif slot[0] > final_slots[-1][1]:
                 final_slots.append(slot)
-    
+
     empty_slots = []
     if final_slots[0][0] != datetime.time(hour=0, minute=0):
         empty_slots.append([datetime.time(hour=0, minute=0), final_slots[0][0]])
     for i in range(len(final_slots) - 1):
         empty_slots.append([final_slots[i][1], final_slots[i + 1][0]])
     return empty_slots
-      
+
 
 def main():
     # register worker 1
     p1 = Worker('08:00', '20:00', 'Mary', 'developer')
     # book slots
     print(p1.book_slot('9:00', '12:00'))
-    print(p1.book_slot('10:00', '12:00')) # not empty
+    print(p1.book_slot('10:00', '12:00'))  # not empty
     # show empty slots for worker 1
     p1_slots = p1.get_empty_slots()
     # get work time for worker 1
     print(p1.get_work_time())
 
-
     # register worker 2
     p2 = Worker('10:00', '21:00', 'Kate', 'teamlead')
     # book slots
-    print(p2.book_slot('9:00', '12:00')) # not empty
+    print(p2.book_slot('9:00', '12:00'))  # not empty
     print(p2.book_slot('12:45', '13:30'))
     # show empty slots for worker 2
     p2_slots = p2.get_empty_slots()
     # get work time for worker 2
     print(p2.get_work_time())
-
 
     # register worker 3
     p3 = Worker('10:00', '22:00', 'John', 'manager')
@@ -193,7 +191,6 @@ def main():
     p3_slots = p3.get_empty_slots()
     # get work time for worker 3
     print(p3.get_work_time())
-
 
     # get mutual slots
     workers = [p1, p2, p3]
